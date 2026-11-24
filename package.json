@@ -12,7 +12,8 @@
     "start": "node ./dist/server/entry.mjs",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build:demo": "node scripts/build-demo.mjs"
   },
   "dependencies": {
     "@astrojs/node": "^11.1.14",

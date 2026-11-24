@@ -1,0 +1,14 @@
+---
+import { site } from '../lib/site';
+import PageHead from './PageHead.astro';
+interface Props { eyebrow: string; title: string; what: string }
+const { eyebrow, title, what } = Astro.props;
+---
+<PageHead eyebrow={eyebrow} title={title} lede={what} />
+<section class="container">
+  <div class="panel" style="max-width:640px">
+    <h2>Not part of the static demo</h2>
+    <p>This section stores data (SQLite) and identifies users, so it only works in the server version. The demo is a read-only copy of the content.</p>
+    <p style="margin-top:.8rem">Run it yourself with Docker or <code class="mono">npm run dev</code>: see the <a href={site.repo}>repository</a>.</p>
+  </div>
+</section>

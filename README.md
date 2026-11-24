@@ -82,6 +82,10 @@ docker compose up -d --build
 
 The image listens on port `4321` and stores the database in the `hub-data` volume (`/data/hub.db`). Back it up with the usual volume tools, or copy the file while the app is idle (SQLite runs in WAL mode: copy `hub.db*`). Migrations run automatically at start-up (`src/lib/migrations.ts`, tracked with `PRAGMA user_version`; add new ones at the end, never edit published ones).
 
+## Static demo (Netlify)
+
+`npm run build:demo` writes a read-only copy of the content to `dist-demo/` with no server: no API, no database, and the challenge board, exceptions, metrics and admin routes become explanatory notices. It stages a copy of `src/` in `.demo/`, drops `src/pages/api` and `src/middleware.ts`, overlays `demo/src/` and builds with `PUBLIC_DEMO=true`, which prerenders every route and shows a banner. `netlify.toml` already points Netlify at that command and folder. The full app needs a server (Docker): Netlify functions have no persistent disk, so SQLite cannot live there.
+
 ## Layout
 
 ```

@@ -12,6 +12,7 @@ interface Props {
   description?: string;
 }
 const { title, description = site.tagline } = Astro.props;
+const demo = import.meta.env.PUBLIC_DEMO === 'true';
 const fullTitle = title ? `${title} · ${site.name}` : site.name;
 ---
 <!doctype html>
@@ -37,11 +38,17 @@ const fullTitle = title ? `${title} · ${site.name}` : site.name;
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
+    {demo && (
+      <div class="demo-banner">
+        Static demo with sample content. The challenge board, exceptions, metrics and admin need the server version:{' '}
+        <a href={site.repo}>get it on GitHub</a>.
+      </div>
+    )}
     <Header currentPath={Astro.url.pathname} />
     <main id="main">
       <slot />
     </main>
     <Footer />
-    <Track />
+    {!demo && <Track />}
   </body>
 </html>

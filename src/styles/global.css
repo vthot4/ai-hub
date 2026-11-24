@@ -370,3 +370,7 @@ details.qa .prose { padding: 0 1.1rem 1rem; color: var(--muted); }
 .sessions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .session { padding: .45rem .8rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); font-size: .9rem; font-weight: 600; }
 .session.next { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+/* ============ Demo ============ */
+.demo-banner { background: var(--accent-soft); color: var(--fg); text-align: center; font-size: .86rem; padding: .5rem 1rem; border-bottom: 1px solid var(--border); }
+.demo-banner a { font-weight: 600; }

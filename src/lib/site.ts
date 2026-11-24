@@ -2,6 +2,7 @@ export interface NavItem { href: string; label: string }
 
 export const site = {
   name: 'AI Hub',
+  repo: 'https://github.com/vthot4/ai-hub',
   tagline: 'One place for approved AI tools, rules, agents and shared know-how.',
   nav: [
     { href: '/start/', label: 'Start' },

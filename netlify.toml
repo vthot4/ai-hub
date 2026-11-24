@@ -1,0 +1,20 @@
+# Demo estática (solo contenido). La app completa (retos, excepciones, métricas) requiere servidor: ver README.
+[build]
+  command = "npm run build:demo"
+  publish = "dist-demo"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # better-sqlite3 trae binarios precompilados; evitar node-gyp en el build
+  NPM_FLAGS = "--ignore-scripts"
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

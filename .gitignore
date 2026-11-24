@@ -6,3 +6,7 @@ data/
 *.log
 .demo/
 dist-demo/
+
+# Local Netlify folder
+.netlify
+.netlify/

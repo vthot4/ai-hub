@@ -19,6 +19,8 @@ Internal hub for an organization's AI adoption:
 | **Exceptions** | Register of approved, time-limited exceptions to restricted tools (holder, justification, approver, expiry). Admins grant, change expiry and revoke; everyone else sees only their own | SQLite (`exceptions`) |
 | **Admin** | Change challenge status, moderate comments | `/admin/` (admin role only) |
 
+> **Live static demo:** https://ai-hub-demo.netlify.app (read-only content; the challenge board, exceptions, metrics and admin need the server version).
+
 > The Markdown content shipped in this repository is **sample content**. Replace it with your organization's real tools, policies and agents.
 
 Stack: Astro 7 (Node adapter, content pages prerendered, `/api/*`, `/challenges/` and `/admin/` server-rendered), Preact islands, SQLite (`better-sqlite3`), Fuse.js search, Vitest.
@@ -84,7 +86,7 @@ The image listens on port `4321` and stores the database in the `hub-data` volum
 
 ## Static demo (Netlify)
 
-`npm run build:demo` writes a read-only copy of the content to `dist-demo/` with no server: no API, no database, and the challenge board, exceptions, metrics and admin routes become explanatory notices. It stages a copy of `src/` in `.demo/`, drops `src/pages/api` and `src/middleware.ts`, overlays `demo/src/` and builds with `PUBLIC_DEMO=true`, which prerenders every route and shows a banner. `netlify.toml` already points Netlify at that command and folder. The full app needs a server (Docker): Netlify functions have no persistent disk, so SQLite cannot live there.
+`npm run build:demo` writes a read-only copy of the content to `dist-demo/` with no server: no API, no database, and the challenge board, exceptions, metrics and admin routes become explanatory notices. It stages a copy of `src/` in `.demo/`, drops `src/pages/api` and `src/middleware.ts`, overlays `demo/src/` and builds with `PUBLIC_DEMO=true`, which prerenders every route and shows a banner. `netlify.toml` already points Netlify at that command and folder. To publish by hand: `npm run build:demo && npx netlify-cli deploy --prod --dir dist-demo` (the site is `ai-hub-demo`). The full app needs a server (Docker): Netlify functions have no persistent disk, so SQLite cannot live there.
 
 ## Layout
 

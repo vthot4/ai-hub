@@ -1,0 +1,19 @@
+services:
+  ai-hub:
+    build: .
+    image: ai-hub:latest
+    restart: unless-stopped
+    ports:
+      - "${PORT:-4321}:4321"
+    environment:
+      TRUST_PROXY_AUTH: ${TRUST_PROXY_AUTH:-false}
+      AUTH_EMAIL_HEADER: ${AUTH_EMAIL_HEADER:-x-forwarded-email}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      ALLOW_DEV_USER: ${ALLOW_DEV_USER:-false}
+      DEV_USER_EMAIL: ${DEV_USER_EMAIL:-dev@example.org}
+      DEV_USER_ADMIN: ${DEV_USER_ADMIN:-false}
+    volumes:
+      - hub-data:/data
+
+volumes:
+  hub-data:

@@ -1,0 +1,61 @@
+---
+// Envuelve el contenido Markdown de un agente. Sin JS se muestra todo en una sola página;
+// con JS cada sección `## ...` pasa a ser una pestaña (Overview / Install / Use / Maintain).
+---
+<div class="prose" id="doc-tabs"><slot /></div>
+<script>
+  const root = document.getElementById('doc-tabs');
+  if (root) {
+    const kids = Array.from(root.children);
+    const heads = kids.filter((k) => k.tagName === 'H2');
+    if (heads.length > 1) {
+      const list = document.createElement('div');
+      list.className = 'tabs-list';
+      list.setAttribute('role', 'tablist');
+      const panels: HTMLElement[] = [];
+      const tabs: HTMLButtonElement[] = [];
+
+      heads.forEach((h, i) => {
+        const panel = document.createElement('section');
+        panel.className = 'tab-panel prose';
+        panel.id = `panel-${h.id}`;
+        panel.setAttribute('role', 'tabpanel');
+        panel.setAttribute('aria-labelledby', `tab-${h.id}`);
+        const end = i + 1 < heads.length ? kids.indexOf(heads[i + 1]) : kids.length;
+        kids.slice(kids.indexOf(h), end).forEach((n) => panel.appendChild(n));
+        h.classList.add('sr-only');
+        panels.push(panel);
+
+        const tab = document.createElement('button');
+        tab.type = 'button';
+        tab.className = 'tab';
+        tab.id = `tab-${h.id}`;
+        tab.setAttribute('role', 'tab');
+        tab.setAttribute('aria-controls', panel.id);
+        tab.textContent = h.textContent;
+        tab.addEventListener('click', () => select(i, true));
+        tab.addEventListener('keydown', (e) => {
+          if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+          const next = (i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+          select(next, true);
+          tabs[next].focus();
+        });
+        tabs.push(tab);
+        list.appendChild(tab);
+      });
+
+      function select(i: number, updateHash: boolean) {
+        tabs.forEach((t, j) => {
+          t.setAttribute('aria-selected', String(i === j));
+          t.tabIndex = i === j ? 0 : -1;
+          panels[j].hidden = i !== j;
+        });
+        if (updateHash) history.replaceState(null, '', `#${heads[i].id}`);
+      }
+
+      root.replaceChildren(list, ...panels);
+      const wanted = heads.findIndex((h) => `#${h.id}` === location.hash);
+      select(wanted >= 0 ? wanted : 0, false);
+    }
+  }
+</script>

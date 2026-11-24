@@ -1,0 +1,37 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
+import { getPolicies } from '../../lib/catalog';
+import { fmtDate } from '../../lib/labels';
+
+export async function getStaticPaths() {
+  return (await getPolicies()).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+---
+<Base title={d.title} description={d.summary}>
+  <div class="container" style="padding-top:2.5rem">
+    <p class="crumbs"><a href="/policies/">Policies</a> / {d.title}</p>
+    <div class="detail">
+      <div>
+        <p class="eyebrow">{d.category}</p>
+        <h1 style="font-size:clamp(2rem,4vw,2.7rem)"><span aria-hidden="true">{d.icon}</span> {d.title}</h1>
+        <p class="muted" style="margin:.8rem 0 2rem;font-size:1.08rem">{d.summary}</p>
+        <div class="prose"><Content /></div>
+      </div>
+      <aside class="aside">
+        <div class="panel"><h2>Policy</h2>
+          <dl class="kv">
+            <dt>Version</dt><dd>{d.version}</dd>
+            <dt>In force since</dt><dd>{fmtDate(d.effectiveFrom)}</dd>
+            <dt>Owner</dt><dd>{d.owner}</dd>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <CodeCopy />
+</Base>

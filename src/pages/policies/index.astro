@@ -1,0 +1,12 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getPolicies, policyItem } from '../../lib/catalog';
+
+const items = (await getPolicies()).map(policyItem);
+---
+<Base title="Policies" description="Rules for using AI at work.">
+  <PageHead eyebrow="Policies" title="Rules of the road" lede="The standards that apply to every AI tool and agent in the organization. Short, versioned and owned." />
+  <SectionList items={items} noun="policy" placeholder="Filter policies…" />
+</Base>

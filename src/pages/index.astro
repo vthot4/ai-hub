@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import Search from '../islands/Search';
+import { site } from '../lib/site';
+import { getAgents, getLibrary, getPolicies, getTools } from '../lib/catalog';
+import { fmtDate } from '../lib/labels';
+
+const [tools, policies, agents, library] = await Promise.all([getTools(), getPolicies(), getAgents(), getLibrary()]);
+const approved = tools.filter((t) => t.data.status === 'approved').length;
+
+const sections = [
+  { href: '/tools/', icon: '🛠️', title: 'Tools', text: 'See which AI tools are approved, restricted or prohibited, and what data they may handle.', stat: `${approved} approved · ${tools.length} listed` },
+  { href: '/policies/', icon: '📜', title: 'Policies', text: 'The rules for acceptable use, data, review and incident reporting.', stat: `${policies.length} policies` },
+  { href: '/agents/', icon: '🤖', title: 'Agents', text: 'A catalogue of agents with install, usage and maintenance guides.', stat: `${agents.length} agents` },
+  { href: '/library/', icon: '📚', title: 'Library', text: 'Guides, templates and best practices shared by colleagues.', stat: `${library.length} resources` },
+  { href: '/challenges/', icon: '🎯', title: 'Challenges', text: 'Request new tools or features, vote on ideas and follow progress.', stat: 'Open board' },
+];
+const latest = library.slice(0, 3);
+---
+<Base>
+  <section class="container hero">
+    <h1>Your organization's <span class="grad">AI hub</span></h1>
+    <p class="lede">{site.tagline}</p>
+    <div class="hero-search"><Search client:load /></div>
+  </section>
+
+  <section class="container section" aria-label="Sections">
+    <div class="grid">
+      {sections.map((s) => (
+        <a class="card section-card" href={s.href}>
+          <span class="card-icon" aria-hidden="true">{s.icon}</span>
+          <h3>{s.title}</h3>
+          <p>{s.text}</p>
+          <div class="card-foot"><span class="tag">{s.stat}</span></div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head"><h2>Newest from the library</h2><a href="/library/">View all →</a></div>
+    <div class="grid">
+      {latest.map((e) => (
+        <a class="card" href={`/library/${e.id}/`}>
+          <div class="card-top"><span class="card-icon" aria-hidden="true">{e.data.icon}</span><span class="badge accent plain">{e.data.category}</span></div>
+          <h3>{e.data.title}</h3>
+          <p>{e.data.summary}</p>
+          <div class="card-foot"><span class="tag">{e.data.author} · {fmtDate(e.data.publishedOn)}</span></div>
+        </a>
+      ))}
+    </div>
+  </section>
+</Base>

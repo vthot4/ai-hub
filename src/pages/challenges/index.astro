@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import AuthRequired from '../../components/AuthRequired.astro';
+import ChallengeBoard from '../../islands/ChallengeBoard';
+import { getDb } from '../../lib/db';
+import { createRepo } from '../../lib/repo';
+
+export const prerender = false;
+Astro.response.headers.set('cache-control', 'no-store');
+const user = Astro.locals.user;
+const initial = user ? createRepo(getDb()).list({ user: user.email, sort: 'votes' }) : [];
+---
+<Base title="Challenges" description="Request new tools, agents or features and vote on ideas.">
+  {!user ? <AuthRequired /> : (
+    <>
+      <PageHead eyebrow="Challenges" title="Challenge board" lede="Ask for a new tool, agent or feature. Vote for what matters to you: the most voted requests are reviewed first." />
+      <section class="container">
+        <ChallengeBoard client:load initial={initial} />
+      </section>
+    </>
+  )}
+</Base>

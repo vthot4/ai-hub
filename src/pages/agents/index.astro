@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getAgents, agentItem } from '../../lib/catalog';
+import { agentStatusLabel } from '../../lib/labels';
+
+const items = (await getAgents()).map(agentItem);
+const statuses = Object.entries(agentStatusLabel).map(([value, v]) => ({ value, label: v.label }));
+---
+<Base title="Agents" description="Catalogue of internal AI agents.">
+  <PageHead eyebrow="Agents" title="Agent catalogue" lede="Ready-made agents with instructions to install, use and maintain each one." />
+  <SectionList items={items} noun="agent" placeholder="Filter agents…" statuses={statuses} />
+</Base>

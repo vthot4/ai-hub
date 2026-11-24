@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import AuthRequired from '../../components/AuthRequired.astro';
+import AdminPanel from '../../islands/AdminPanel';
+import { getDb } from '../../lib/db';
+import { createRepo } from '../../lib/repo';
+
+export const prerender = false;
+Astro.response.headers.set('cache-control', 'no-store');
+const user = Astro.locals.user;
+const isAdmin = !!user?.isAdmin;
+if (user && !isAdmin) Astro.response.status = 403;
+const repo = isAdmin ? createRepo(getDb()) : null;
+const challenges = repo ? repo.list({ user: user!.email, sort: 'new' }) : [];
+const comments = repo ? repo.recentComments() : [];
+---
+<Base title="Admin">
+  {!user ? <AuthRequired /> : !isAdmin ? (
+    <PageHead eyebrow="403" title="Admins only" lede="Your account does not have the admin role." />
+  ) : (
+    <>
+      <PageHead eyebrow="Admin" title="Moderation" lede="Change the status of challenges and remove inappropriate content." />
+      <section class="container"><AdminPanel client:load challenges={challenges} comments={comments} /></section>
+    </>
+  )}
+</Base>

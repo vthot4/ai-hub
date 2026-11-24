@@ -1,0 +1,25 @@
+---
+---
+<script>
+  // Añade un botón "Copy" a cada bloque <pre> dentro de .prose
+  document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'copy-wrap';
+    pre.replaceWith(wrap);
+    wrap.appendChild(pre);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn sm copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText);
+        btn.textContent = 'Copied';
+      } catch {
+        btn.textContent = 'Press Ctrl+C';
+      }
+      setTimeout(() => (btn.textContent = 'Copy'), 1600);
+    });
+    wrap.appendChild(btn);
+  });
+</script>

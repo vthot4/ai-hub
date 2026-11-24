@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getTools, toolItem } from '../../lib/catalog';
+import { toolStatusLabel } from '../../lib/labels';
+
+const items = (await getTools()).map(toolItem);
+const statuses = Object.entries(toolStatusLabel).map(([value, v]) => ({ value, label: v.label }));
+---
+<Base title="Tools" description="AI tools and their approval status.">
+  <PageHead eyebrow="Tools" title="Approved AI tools" lede="Which tools you may use, for what, and which data must never go in. Status is reviewed regularly by the owner of each tool." />
+  <SectionList items={items} noun="tool" placeholder="Filter tools…" statuses={statuses} />
+</Base>

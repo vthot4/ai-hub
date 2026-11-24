@@ -1,0 +1,46 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
+import DocTabs from '../../components/DocTabs.astro';
+import { getAgents } from '../../lib/catalog';
+import { agentStatusLabel, fmtDate } from '../../lib/labels';
+
+export async function getStaticPaths() {
+  return (await getAgents()).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const status = agentStatusLabel[d.status];
+const { Content } = await render(entry);
+---
+<Base title={d.name} description={d.summary}>
+  <div class="container" style="padding-top:2.5rem">
+    <p class="crumbs"><a href="/agents/">Agents</a> / {d.name}</p>
+    <div class="detail">
+      <div>
+        <p class="eyebrow">{d.category}</p>
+        <h1 style="font-size:clamp(2rem,4vw,2.7rem)"><span aria-hidden="true">{d.icon}</span> {d.name}</h1>
+        <p class="muted" style="margin:.8rem 0 1.2rem;font-size:1.08rem">{d.summary}</p>
+        <div style="margin-bottom:2rem"><span class={`badge ${status.variant}`}>{status.label}</span></div>
+        <DocTabs><Content /></DocTabs>
+      </div>
+      <aside class="aside">
+        <div class="panel"><h2>Details</h2>
+          <dl class="kv">
+            <dt>Status</dt><dd>{status.label}</dd>
+            <dt>Version</dt><dd class="mono">{d.version}</dd>
+            <dt>Owner</dt><dd>{d.owner}</dd>
+            <dt>Updated</dt><dd>{fmtDate(d.updatedOn)}</dd>
+          </dl>
+          {d.repo && <a class="btn" style="margin-top:1rem;width:100%" href={d.repo} rel="noopener" target="_blank">Source repository ↗</a>}
+        </div>
+        {d.tech.length > 0 && (
+          <div class="panel"><h2>Built with</h2>
+            <div class="chips">{d.tech.map((t) => <span class="badge plain">{t}</span>)}</div></div>
+        )}
+      </aside>
+    </div>
+  </div>
+  <CodeCopy />
+</Base>

@@ -1,0 +1,50 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
+import { getTools } from '../../lib/catalog';
+import { toolStatusLabel, fmtDate } from '../../lib/labels';
+
+export async function getStaticPaths() {
+  return (await getTools()).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const status = toolStatusLabel[d.status];
+const { Content } = await render(entry);
+---
+<Base title={d.name} description={d.summary}>
+  <div class="container" style="padding-top:2.5rem">
+    <p class="crumbs"><a href="/tools/">Tools</a> / {d.name}</p>
+    <div class="detail">
+      <div>
+        <p class="eyebrow">{d.category}</p>
+        <h1 style="font-size:clamp(2rem,4vw,2.7rem)"><span aria-hidden="true">{d.icon}</span> {d.name}</h1>
+        <p class="muted" style="margin:.8rem 0 1.5rem;font-size:1.08rem">{d.summary}</p>
+        <div style="margin-bottom:2rem"><span class={`badge ${status.variant}`}>{status.label}</span>
+          {d.requiresApproval && <span class="badge warn plain" style="margin-left:.4rem">Approval required</span>}</div>
+        {d.allowedUses.length > 0 && (
+          <div class="panel" style="margin-bottom:1rem"><h2>Allowed uses</h2>
+            <ul class="list-check">{d.allowedUses.map((u) => <li>{u}</li>)}</ul></div>
+        )}
+        {d.forbiddenData.length > 0 && (
+          <div class="panel" style="margin-bottom:2rem"><h2>Never enter</h2>
+            <ul class="list-check deny">{d.forbiddenData.map((u) => <li>{u}</li>)}</ul></div>
+        )}
+        <div class="prose"><Content /></div>
+      </div>
+      <aside class="aside">
+        <div class="panel"><h2>Details</h2>
+          <dl class="kv">
+            <dt>Status</dt><dd>{status.label}</dd>
+            <dt>Vendor</dt><dd>{d.vendor}</dd>
+            <dt>Owner</dt><dd>{d.owner}</dd>
+            <dt>Reviewed</dt><dd>{fmtDate(d.reviewedOn)}</dd>
+          </dl>
+          {d.url && d.status !== 'prohibited' && <a class="btn primary" style="margin-top:1rem;width:100%" href={d.url} rel="noopener" target="_blank">Open tool ↗</a>}
+        </div>
+      </aside>
+    </div>
+  </div>
+  <CodeCopy />
+</Base>

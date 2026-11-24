@@ -1,0 +1,21 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getLibrary, libraryItem } from '../../lib/catalog';
+import { libraryTypeLabel } from '../../lib/labels';
+
+const items = (await getLibrary()).map(libraryItem);
+const statuses = Object.entries(libraryTypeLabel).map(([value, label]) => ({ value, label }));
+---
+<Base title="Library" description="Shared documentation and best practices.">
+  <PageHead eyebrow="Library" title="Shared knowledge" lede="Guides, templates and best practices written by people who use AI every day. Add yours with a pull request." />
+  <SectionList items={items} noun="resource" placeholder="Filter resources…" statuses={statuses} />
+  <section class="container section">
+    <div class="panel">
+      <h2>Contribute</h2>
+      <p>Add a Markdown file to <code class="mono">src/content/library/</code> following the front-matter of the existing entries and open a pull request. Reviewers: AI Platform Team.</p>
+      <p style="margin-top:.8rem">Not comfortable with Git? <a href="/challenges/?new=resource">Suggest a resource</a> on the challenge board and someone will add it for you.</p>
+    </div>
+  </section>
+</Base>

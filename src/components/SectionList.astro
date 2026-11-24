@@ -1,0 +1,9 @@
+---
+import CatalogBrowser from '../islands/CatalogBrowser';
+import type { CatalogItem } from '../lib/catalog';
+interface Props { items: CatalogItem[]; noun: string; placeholder: string; statuses?: { value: string; label: string }[] }
+const { items, noun, placeholder, statuses } = Astro.props;
+---
+<section class="container">
+  <CatalogBrowser client:load items={items} noun={noun} placeholder={placeholder} statuses={statuses} />
+</section>

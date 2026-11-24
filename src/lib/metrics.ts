@@ -5,7 +5,7 @@ import { statuses, type Status } from './constants';
 /** Secciones que se miden. El resto de rutas (404, assets, api) se ignoran. */
 export const trackedSections = [
   'home', 'start', 'tools', 'policies', 'agents', 'flows', 'library',
-  'challenges', 'training', 'faq', 'news', 'risks', 'metrics',
+  'challenges', 'training', 'faq', 'news', 'risks', 'exceptions', 'metrics',
 ] as const;
 export type Section = (typeof trackedSections)[number];
 

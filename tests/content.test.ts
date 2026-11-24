@@ -45,7 +45,7 @@ describe('decision tree', () => {
 });
 
 // Rutas internas válidas: páginas fijas + una por entrada de contenido.
-const routes = new Set<string>(['/', '/tools/', '/policies/', '/agents/', '/library/', '/flows/', '/start/', '/faq/', '/news/', '/risks/', '/training/', '/challenges/', '/metrics/', '/admin/']);
+const routes = new Set<string>(['/', '/tools/', '/policies/', '/agents/', '/library/', '/flows/', '/start/', '/faq/', '/news/', '/risks/', '/training/', '/challenges/', '/metrics/', '/exceptions/', '/admin/']);
 const sections: Record<string, string> = { tools: 'tools', policies: 'policies', agents: 'agents', library: 'library', flows: 'flows', onboarding: 'start', risks: 'risks', training: 'training' };
 const markdownFiles: { file: string; text: string }[] = [];
 for (const [dir, route] of Object.entries(sections)) {

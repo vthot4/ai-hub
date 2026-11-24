@@ -5,12 +5,14 @@ import AuthRequired from '../../components/AuthRequired.astro';
 import { getCollection } from 'astro:content';
 import { getDb } from '../../lib/db';
 import { createMetrics } from '../../lib/metrics';
+import { createExceptionsRepo, EXPIRING_SOON_DAYS } from '../../lib/exceptions';
 import { statusLabel, statuses } from '../../lib/constants';
 
 export const prerender = false;
 Astro.response.headers.set('cache-control', 'no-store');
 const user = Astro.locals.user;
 const m = user ? createMetrics(getDb()).summary(30) : null;
+const ex = user ? createExceptionsRepo(getDb()).counts() : { active: 0, expiringSoon: 0 };
 
 const [tools, agents, policies, library, flows, training] = await Promise.all(
   ['tools', 'agents', 'policies', 'library', 'flows', 'training'].map((c) => getCollection(c as 'tools')),
@@ -37,6 +39,8 @@ const maxStatus = Math.max(1, ...(m ? Object.values(m.challenges.byStatus) : [1]
           <div class="stat"><div class="stat-value">{m.challenges.resolved} <span class="muted" style="font-size:1rem">({resolutionRate}%)</span></div><div class="stat-label">Challenges resolved</div></div>
           <div class="stat"><div class="stat-value">{m.challenges.participants}</div><div class="stat-label">Board participants</div></div>
           <div class="stat"><div class="stat-value">{m.challenges.votes + m.challenges.comments}</div><div class="stat-label">Votes & comments</div></div>
+          <div class="stat"><div class="stat-value">{ex.active}</div><div class="stat-label">Active exceptions</div></div>
+          <div class="stat"><div class="stat-value">{ex.expiringSoon}</div><div class="stat-label">Expiring in {EXPIRING_SOON_DAYS} d</div></div>
         </div>
       </section>
 

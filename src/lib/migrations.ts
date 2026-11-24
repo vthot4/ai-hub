@@ -38,4 +38,20 @@ export const migrations: string[] = [
   );
   CREATE INDEX idx_page_views_day ON page_views(day);
   `,
+  /* 3 */ `
+  CREATE TABLE exceptions (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    tool        TEXT NOT NULL,
+    holder      TEXT NOT NULL,
+    reason      TEXT NOT NULL,
+    approved_by TEXT NOT NULL,
+    starts_on   TEXT NOT NULL,
+    expires_on  TEXT NOT NULL CHECK (expires_on >= starts_on),
+    revoked_at  TEXT,
+    revoked_by  TEXT,
+    created_at  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  );
+  CREATE INDEX idx_exceptions_holder ON exceptions(holder);
+  CREATE INDEX idx_exceptions_tool ON exceptions(tool);
+  `,
 ];

@@ -44,6 +44,10 @@ const { Content } = await render(entry);
           </dl>
           {d.url && d.status !== 'prohibited' && <a class="btn primary" style="margin-top:1rem;width:100%" href={d.url} rel="noopener" target="_blank">Open tool ↗</a>}
         </div>
+        {d.requiresApproval && (
+          <div class="panel"><h2>Need access?</h2>
+            <p class="muted" style="font-size:.92rem">This tool needs a recorded exception. <a href="/challenges/?new=tool">Request one</a>; approved exceptions are listed in the <a href="/exceptions/">register</a>.</p></div>
+        )}
       </aside>
     </div>
   </div>

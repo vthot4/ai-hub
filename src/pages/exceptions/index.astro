@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import AuthRequired from '../../components/AuthRequired.astro';
+import ExceptionsPanel from '../../islands/ExceptionsPanel';
+import { getDb } from '../../lib/db';
+import { createExceptionsRepo } from '../../lib/exceptions';
+import { getExceptionTools } from '../../lib/restricted-tools';
+
+export const prerender = false;
+Astro.response.headers.set('cache-control', 'no-store');
+const user = Astro.locals.user;
+const tools = await getExceptionTools();
+const initial = user ? createExceptionsRepo(getDb()).list(user.isAdmin ? {} : { holder: user.email }) : [];
+---
+<Base title="Exceptions" description="Approved exceptions to restricted tools.">
+  {!user ? <AuthRequired /> : (
+    <>
+      <PageHead
+        eyebrow="Exceptions"
+        title="Approved exceptions"
+        lede={user.isAdmin
+          ? 'Who may use which restricted tool, why, and until when. Every exception is time-limited and recorded with its approver.'
+          : 'The exceptions granted to you for restricted tools, and until when they apply.'} />
+      <section class="container">
+        <ExceptionsPanel client:load initial={initial} tools={tools} isAdmin={user.isAdmin} />
+      </section>
+      {!user.isAdmin && (
+        <section class="container section">
+          <div class="panel">
+            <h2>Need access to a restricted tool?</h2>
+            <p>Open a <a href="/challenges/?new=tool">tool request</a> and mention that you need an exception: include the use case and the data involved. Information Security decides and the AI Platform Team records it here. See the <a href="/policies/acceptable-use/">acceptable use policy</a>.</p>
+          </div>
+        </section>
+      )}
+    </>
+  )}
+</Base>

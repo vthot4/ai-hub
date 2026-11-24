@@ -16,6 +16,7 @@ Internal hub for an organization's AI adoption:
 | **News** | Changelog of the hub, newest first | `src/content/news/*.md` |
 | **Risks** | Anonymised incident and lessons-learned register | `src/content/risks/*.md` |
 | **Metrics** | Adoption dashboard: active users, visits per section, challenge health | SQLite (`page_views`) |
+| **Exceptions** | Register of approved, time-limited exceptions to restricted tools (holder, justification, approver, expiry). Admins grant, change expiry and revoke; everyone else sees only their own | SQLite (`exceptions`) |
 | **Admin** | Change challenge status, moderate comments | `/admin/` (admin role only) |
 
 > The Markdown content shipped in this repository is **sample content**. Replace it with your organization's real tools, policies and agents.
@@ -60,9 +61,13 @@ The hub does **not** implement login. Put it behind a proxy that authenticates u
 With neither option enabled, the challenge board and admin return `401` and the API rejects every call. Content pages are static and carry no user data; if they must be private too, enforce that at the proxy.
 
 Security notes:
-- Mutating API calls require `Content-Type: application/json` (or the `X-Requested-With: ai-hub` header for body-less calls), which forces a CORS preflight on cross-site requests (CSRF defence).
+- Mutating API calls require `Content-Type: application/json` and, for body-less calls, the `X-Requested-With: ai-hub` header, which forces a CORS preflight on cross-site requests (CSRF defence). The bundled client always sends both: without a JSON content-type Astro's origin filter treats the request as a form post and compares `Origin` with the URL the server sees, which fails behind Docker or a proxy (`403 Cross-site … forbidden`).
 - Input is validated with zod; the UI renders text escaped; submissions are rate-limited per user **in memory**, so run a single instance (SQLite is single-writer anyway).
 - Terminate TLS at the proxy.
+
+## Exceptions register
+
+Admins grant an exception for a **restricted tool** (`status: restricted` or `requiresApproval: true`) to a person or team, with a justification and start/expiry dates (maximum 365 days). Status is derived from the dates: *active*, *scheduled*, *expired* or *revoked*; revoked ones keep who revoked them and cannot be renewed (grant a new one). Holder emails are visible to admins only; a regular user sees just the exceptions whose holder is their own email. The register does not block anything technically: it is the record that supports the access you configure in each tool.
 
 ## Usage metrics and privacy
 

@@ -24,4 +24,4 @@ tags: [core, usage]
 
 ## Exceptions
 
-Request exceptions through Information Security. Exceptions are time-limited and recorded.
+Request exceptions through Information Security. Exceptions are time-limited (at most one year) and each one is listed, with holder, approver and expiry, in the [exceptions register](/exceptions/).

@@ -17,6 +17,7 @@ export const site = {
     { href: '/faq/', label: 'FAQ' },
     { href: '/news/', label: 'News' },
     { href: '/risks/', label: 'Risks' },
+    { href: '/exceptions/', label: 'Exceptions' },
     { href: '/metrics/', label: 'Metrics' },
   ] satisfies NavItem[],
 };

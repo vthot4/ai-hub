@@ -2,7 +2,8 @@
 FROM node:22-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
+# better-sqlite3 trae binarios precompilados; evitar node-gyp (la imagen no tiene python/g++)
+RUN npm ci --ignore-scripts
 COPY . .
 RUN npm run build
 
@@ -13,7 +14,7 @@ ENV NODE_ENV=production \
     DATABASE_PATH=/data/hub.db
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 COPY --from=build /app/dist ./dist
 RUN mkdir /data && chown node:node /data
 USER node

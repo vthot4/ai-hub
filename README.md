@@ -92,3 +92,7 @@ src/islands/        Preact: CatalogBrowser, Search, DecisionTree, ChallengeBoard
 src/lib/            db, migrations, repo (challenges), metrics, auth, validation, rate limit
 tests/              Vitest
 ```
+
+## License
+
+MIT. See [LICENSE](LICENSE).

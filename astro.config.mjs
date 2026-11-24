@@ -8,5 +8,7 @@ export default defineConfig({
   adapter: node({ mode: 'standalone' }),
   integrations: [preact()],
   trailingSlash: 'always',
+  // Los bloques ```mermaid se dibujan en el cliente (islas/MermaidRender), no se resaltan.
+  markdown: { syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid'] } },
   security: { checkOrigin: true },
 });

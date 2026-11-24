@@ -2,19 +2,31 @@
 import Base from '../layouts/Base.astro';
 import Search from '../islands/Search';
 import { site } from '../lib/site';
-import { getAgents, getLibrary, getPolicies, getTools } from '../lib/catalog';
-import { fmtDate } from '../lib/labels';
+import { getAgents, getFlows, getLibrary, getNews, getOnboarding, getPolicies, getRisks, getTools, getTraining } from '../lib/catalog';
+import { fmtDate, newsTypeLabel } from '../lib/labels';
 
-const [tools, policies, agents, library] = await Promise.all([getTools(), getPolicies(), getAgents(), getLibrary()]);
+const [tools, policies, agents, library, flows, onboarding, risks, training, news] = await Promise.all([
+  getTools(), getPolicies(), getAgents(), getLibrary(), getFlows(), getOnboarding(), getRisks(), getTraining(), getNews(),
+]);
 const approved = tools.filter((t) => t.data.status === 'approved').length;
 
 const sections = [
+  { href: '/start/', icon: '🚀', title: 'Start here', text: 'A first-week path for your role: tools, rules and habits.', stat: `${onboarding.length} role paths` },
   { href: '/tools/', icon: '🛠️', title: 'Tools', text: 'See which AI tools are approved, restricted or prohibited, and what data they may handle.', stat: `${approved} approved · ${tools.length} listed` },
   { href: '/policies/', icon: '📜', title: 'Policies', text: 'The rules for acceptable use, data, review and incident reporting.', stat: `${policies.length} policies` },
   { href: '/agents/', icon: '🤖', title: 'Agents', text: 'A catalogue of agents with install, usage and maintenance guides.', stat: `${agents.length} agents` },
+  { href: '/flows/', icon: '🔀', title: 'Flows', text: 'Approval and escalation processes plus reusable automation flows.', stat: `${flows.length} flows` },
   { href: '/library/', icon: '📚', title: 'Library', text: 'Guides, templates and best practices shared by colleagues.', stat: `${library.length} resources` },
   { href: '/challenges/', icon: '🎯', title: 'Challenges', text: 'Request new tools or features, vote on ideas and follow progress.', stat: 'Open board' },
 ];
+const more = [
+  { href: '/training/', icon: '🎓', title: 'Training', stat: `${training.length} courses` },
+  { href: '/faq/', icon: '❓', title: 'Can I use AI for…?', stat: 'Decision guide + FAQ' },
+  { href: '/news/', icon: '📰', title: 'News', stat: `${news.length} updates` },
+  { href: '/risks/', icon: '⚠️', title: 'Risks & lessons', stat: `${risks.length} entries` },
+  { href: '/metrics/', icon: '📈', title: 'Metrics', stat: 'Adoption dashboard' },
+];
+const latestNews = news.slice(0, 3);
 const latest = library.slice(0, 3);
 ---
 <Base>
@@ -31,6 +43,35 @@ const latest = library.slice(0, 3);
           <span class="card-icon" aria-hidden="true">{s.icon}</span>
           <h3>{s.title}</h3>
           <p>{s.text}</p>
+          <div class="card-foot"><span class="tag">{s.stat}</span></div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head"><h2>What's new</h2><a href="/news/">All news →</a></div>
+    <div class="grid">
+      {latestNews.map((e) => {
+        const t = newsTypeLabel[e.data.type];
+        return (
+          <a class="card" href={e.data.href ?? '/news/'}>
+            <div class="card-top"><span class={`badge ${t.variant}`}>{t.label}</span><span class="tag">{fmtDate(e.data.date)}</span></div>
+            <h3>{e.data.title}</h3>
+            <p>{e.data.summary}</p>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="container section">
+    <div class="section-head"><h2>And more</h2></div>
+    <div class="grid tight">
+      {more.map((s) => (
+        <a class="card" href={s.href}>
+          <div class="card-top"><span class="card-icon" aria-hidden="true">{s.icon}</span></div>
+          <h3>{s.title}</h3>
           <div class="card-foot"><span class="tag">{s.stat}</span></div>
         </a>
       ))}

@@ -1,0 +1,14 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getFlows, flowItem } from '../../lib/catalog';
+import { flowKindLabel } from '../../lib/labels';
+
+const items = (await getFlows()).map(flowItem);
+const statuses = Object.entries(flowKindLabel).map(([value, v]) => ({ value, label: v.label }));
+---
+<Base title="Flows" description="Step-by-step processes and reusable automation flows.">
+  <PageHead eyebrow="Flows" title="Processes & automation flows" lede="How things get done: approval and escalation processes, plus reusable automation flows with their inputs, outputs and stack." />
+  <SectionList items={items} noun="flow" placeholder="Filter flows…" statuses={statuses} />
+</Base>

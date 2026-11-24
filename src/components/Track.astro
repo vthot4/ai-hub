@@ -1,0 +1,11 @@
+---
+---
+<script>
+  // Visita agregada por sección (la API ignora peticiones sin identidad)
+  fetch('/api/track/', {
+    method: 'POST',
+    keepalive: true,
+    headers: { 'content-type': 'application/json', 'x-requested-with': 'ai-hub' },
+    body: JSON.stringify({ path: location.pathname }),
+  }).catch(() => {});
+</script>

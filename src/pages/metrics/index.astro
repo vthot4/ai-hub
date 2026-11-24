@@ -1,0 +1,90 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import AuthRequired from '../../components/AuthRequired.astro';
+import { getCollection } from 'astro:content';
+import { getDb } from '../../lib/db';
+import { createMetrics } from '../../lib/metrics';
+import { statusLabel, statuses } from '../../lib/constants';
+
+export const prerender = false;
+Astro.response.headers.set('cache-control', 'no-store');
+const user = Astro.locals.user;
+const m = user ? createMetrics(getDb()).summary(30) : null;
+
+const [tools, agents, policies, library, flows, training] = await Promise.all(
+  ['tools', 'agents', 'policies', 'library', 'flows', 'training'].map((c) => getCollection(c as 'tools')),
+) as [any[], any[], any[], any[], any[], any[]];
+const countBy = (xs: any[], key: string, value: string) => xs.filter((x) => x.data[key] === value).length;
+
+const maxSection = Math.max(1, ...(m?.bySection.map((s) => s.views) ?? [1]));
+const maxDaily = Math.max(1, ...(m?.daily.map((d) => d.users) ?? [1]));
+const W = 640, H = 140, gap = 3;
+const bw = m ? (W - gap * (m.daily.length - 1)) / m.daily.length : 0;
+const resolutionRate = m && m.challenges.total ? Math.round((m.challenges.resolved / m.challenges.total) * 100) : 0;
+const maxStatus = Math.max(1, ...(m ? Object.values(m.challenges.byStatus) : [1]));
+---
+<Base title="Metrics" description="Adoption of the AI hub.">
+  {!user || !m ? <AuthRequired /> : (
+    <>
+      <PageHead eyebrow="Metrics" title="Adoption" lede={`Usage of the hub over the last ${m.windowDays} days and the health of the challenge board. Data is aggregated: individual users are not identifiable.`} />
+
+      <section class="container">
+        <div class="stats">
+          <div class="stat"><div class="stat-value">{m.activeUsers}</div><div class="stat-label">Active users ({m.windowDays} d)</div></div>
+          <div class="stat"><div class="stat-value">{m.views}</div><div class="stat-label">Section visits ({m.windowDays} d)</div></div>
+          <div class="stat"><div class="stat-value">{m.challenges.total}</div><div class="stat-label">Challenges submitted</div></div>
+          <div class="stat"><div class="stat-value">{m.challenges.resolved} <span class="muted" style="font-size:1rem">({resolutionRate}%)</span></div><div class="stat-label">Challenges resolved</div></div>
+          <div class="stat"><div class="stat-value">{m.challenges.participants}</div><div class="stat-label">Board participants</div></div>
+          <div class="stat"><div class="stat-value">{m.challenges.votes + m.challenges.comments}</div><div class="stat-label">Votes & comments</div></div>
+        </div>
+      </section>
+
+      <section class="container section two-col">
+        <div class="panel chart">
+          <h2>Daily active users</h2>
+          <svg viewBox={`0 0 ${W} ${H + 20}`} role="img" aria-label="Daily active users, last 30 days">
+            {m.daily.map((d, i) => {
+              const h = Math.max(d.users ? 4 : 1, (d.users / maxDaily) * H);
+              return <rect x={i * (bw + gap)} y={H - h} width={bw} height={h} rx="2" fill="var(--accent)" opacity={d.users ? 1 : 0.25}><title>{d.day}: {d.users}</title></rect>;
+            })}
+            <text x="0" y={H + 16} fill="var(--muted)" font-size="11">{m.daily[0].day}</text>
+            <text x={W} y={H + 16} fill="var(--muted)" font-size="11" text-anchor="end">{m.daily.at(-1)!.day}</text>
+          </svg>
+        </div>
+        <div class="panel">
+          <h2>Visits by section</h2>
+          {m.bySection.length === 0 ? <p class="muted">No visits recorded yet.</p> : (
+            <div class="bars">
+              {m.bySection.map((s) => (
+                <div class="bar-row"><span>{s.section}</span><div class="bar-track"><div class="bar-fill" style={`width:${(s.views / maxSection) * 100}%`}></div></div><span class="bar-num">{s.views}</span></div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section class="container section two-col">
+        <div class="panel">
+          <h2>Challenges by status</h2>
+          <div class="bars">
+            {statuses.map((s) => (
+              <div class="bar-row"><span>{statusLabel[s].label}</span><div class="bar-track"><div class="bar-fill" style={`width:${(m.challenges.byStatus[s] / maxStatus) * 100}%`}></div></div><span class="bar-num">{m.challenges.byStatus[s]}</span></div>
+            ))}
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Content inventory</h2>
+          <dl class="kv">
+            <dt>Tools</dt><dd>{tools.length} ({countBy(tools, 'status', 'approved')} approved)</dd>
+            <dt>Agents</dt><dd>{agents.length} ({countBy(agents, 'status', 'stable')} stable)</dd>
+            <dt>Policies</dt><dd>{policies.length}</dd>
+            <dt>Flows</dt><dd>{flows.length}</dd>
+            <dt>Library resources</dt><dd>{library.length}</dd>
+            <dt>Training offers</dt><dd>{training.length}</dd>
+          </dl>
+        </div>
+      </section>
+    </>
+  )}
+</Base>

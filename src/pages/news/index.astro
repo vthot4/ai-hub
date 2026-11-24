@@ -1,0 +1,43 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import { getNews } from '../../lib/catalog';
+import { newsTypeLabel, fmtDate } from '../../lib/labels';
+
+const entries = await getNews();
+const rendered = await Promise.all(entries.map(async (e) => ({ e, Content: (await render(e)).Content, hasBody: !!e.body?.trim() })));
+const month = (d: Date) => d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+const groups: { month: string; items: typeof rendered }[] = [];
+for (const r of rendered) {
+  const m = month(r.e.data.date);
+  const last = groups.at(-1);
+  if (last?.month === m) last.items.push(r);
+  else groups.push({ month: m, items: [r] });
+}
+---
+<Base title="News" description="What changed in the AI hub.">
+  <PageHead eyebrow="News" title="What's new" lede="New tools, policy changes, agent releases and hub updates, newest first." />
+  <section class="container" style="max-width:820px;margin-inline:auto">
+    {groups.length === 0 ? <p class="empty">Nothing here yet.</p> : (
+      <div class="timeline">
+        {groups.map((g) => (
+          <>
+            <p class="timeline-month">{g.month}</p>
+            {g.items.map(({ e, Content, hasBody }) => {
+              const t = newsTypeLabel[e.data.type];
+              return (
+                <article class="news-item card">
+                  <div class="news-meta"><span class={`badge ${t.variant}`}>{t.label}</span><time datetime={e.data.date.toISOString()}>{fmtDate(e.data.date)}</time></div>
+                  <h3>{e.data.href ? <a href={e.data.href} style="color:inherit">{e.data.title}</a> : e.data.title}</h3>
+                  <p>{e.data.summary}</p>
+                  {hasBody && <div class="prose" style="margin-top:.3rem"><Content /></div>}
+                </article>
+              );
+            })}
+          </>
+        ))}
+      </div>
+    )}
+  </section>
+</Base>

@@ -1,0 +1,58 @@
+[
+  { "id": "start", "question": "Which tool will you use?", "options": [
+    { "label": "An approved tool from the catalogue", "next": "data_approved" },
+    { "label": "A restricted tool (needs sign-off)", "next": "restricted_signoff" },
+    { "label": "A personal or free-tier account", "next": "res_personal" },
+    { "label": "A tool that is not in the catalogue", "next": "res_unlisted" }
+  ]},
+  { "id": "restricted_signoff", "question": "Do you have the written approval for this use?", "options": [
+    { "label": "Yes, I have it", "next": "data_restricted_tool" },
+    { "label": "No, not yet", "next": "res_need_approval" }
+  ]},
+  { "id": "data_approved", "question": "What is the most sensitive data involved?", "options": [
+    { "label": "Public information only", "next": "purpose" },
+    { "label": "Internal (meeting notes, process documents)", "next": "purpose" },
+    { "label": "Confidential (contracts, forecasts, code under NDA)", "next": "res_conf_cloud" },
+    { "label": "Restricted (customer personal data, credentials, health data)", "next": "res_restricted" },
+    { "label": "I am not sure", "next": "res_unsure" }
+  ]},
+  { "id": "data_restricted_tool", "question": "What is the most sensitive data involved?", "options": [
+    { "label": "Public or internal information", "next": "purpose" },
+    { "label": "Confidential", "next": "res_conf_selfhosted" },
+    { "label": "Restricted (customer personal data, credentials, health data)", "next": "res_restricted" },
+    { "label": "I am not sure", "next": "res_unsure" }
+  ]},
+  { "id": "purpose", "question": "What will the output be used for?", "options": [
+    { "label": "Only my own drafting or understanding", "next": "res_ok" },
+    { "label": "Shared with colleagues inside the organization", "next": "res_review" },
+    { "label": "Published externally or sent to customers", "next": "res_external" },
+    { "label": "Deciding something about a person (hiring, performance, credit)", "next": "res_people" }
+  ]},
+  { "id": "res_ok", "result": { "verdict": "yes", "title": "Go ahead", "text": "This is a normal, allowed use. You remain responsible for the result: check facts before relying on it.", "links": [
+    { "label": "Acceptable use policy", "href": "/policies/acceptable-use/" } ] } },
+  { "id": "res_review", "result": { "verdict": "conditions", "title": "Yes, with a human review", "text": "Someone who understands the subject must review the output before it is shared. Verify facts, figures and references.", "links": [
+    { "label": "Human review policy", "href": "/policies/human-review/" } ] } },
+  { "id": "res_external", "result": { "verdict": "conditions", "title": "Only with review and approvals", "text": "Review the content yourself, then get the approvals listed on the tool page (for example Communications for generated images). Check licences for generated code and media.", "links": [
+    { "label": "IP and licensing", "href": "/policies/ip-and-licensing/" },
+    { "label": "Tool catalogue", "href": "/tools/" } ] } },
+  { "id": "res_people", "result": { "verdict": "no", "title": "Not without an approved assessment", "text": "Automated or AI-assisted decisions that affect people need an approved assessment first. Contact Information Security and HR before you start.", "links": [
+    { "label": "Acceptable use policy", "href": "/policies/acceptable-use/" } ] } },
+  { "id": "res_conf_cloud", "result": { "verdict": "no", "title": "No: Confidential data cannot go to cloud tools", "text": "Approved cloud tools only accept Public and Internal data. Ask the AI Platform Team about the self-hosted option, which needs approval.", "links": [
+    { "label": "Data classification", "href": "/policies/data-classification/" },
+    { "label": "Self-hosted models", "href": "/tools/local-models/" } ] } },
+  { "id": "res_conf_selfhosted", "result": { "verdict": "conditions", "title": "Only on approved, managed hardware", "text": "Confidential data may be processed by self-hosted models if your approval covers it and you run on managed hardware, never a personal laptop.", "links": [
+    { "label": "Self-hosted models", "href": "/tools/local-models/" } ] } },
+  { "id": "res_restricted", "result": { "verdict": "no", "title": "No: Restricted data never goes into an AI tool", "text": "Customer personal data, credentials and similar data must not be entered, even in an approved tool. Anonymise it first or do the task another way.", "links": [
+    { "label": "Data classification", "href": "/policies/data-classification/" },
+    { "label": "Report an incident", "href": "/policies/incident-reporting/" } ] } },
+  { "id": "res_unsure", "result": { "verdict": "conditions", "title": "Treat it as one level higher", "text": "When you are not sure, treat the data as one classification level above your best guess, and ask Information Security before using it.", "links": [
+    { "label": "Data classification", "href": "/policies/data-classification/" } ] } },
+  { "id": "res_need_approval", "result": { "verdict": "no", "title": "Get the approval first", "text": "Restricted tools may only be used with written sign-off. Request it through the challenge board or the tool owner listed on the tool page.", "links": [
+    { "label": "Challenge board", "href": "/challenges/" },
+    { "label": "Tool catalogue", "href": "/tools/" } ] } },
+  { "id": "res_personal", "result": { "verdict": "no", "title": "No: personal and free accounts are not covered", "text": "They may use your input for training and offer no contractual protection, whatever the data. Use the enterprise assistant instead.", "links": [
+    { "label": "Enterprise Chat Assistant", "href": "/tools/chat-assistant-enterprise/" } ] } },
+  { "id": "res_unlisted", "result": { "verdict": "no", "title": "Not until it is reviewed", "text": "Tools that are not in the catalogue have not been assessed. Request a review so everyone can benefit if it is approved.", "links": [
+    { "label": "Request a tool", "href": "/challenges/?new=tool" },
+    { "label": "Process: request a new tool", "href": "/flows/request-new-tool/" } ] } }
+]

@@ -1,0 +1,20 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getRisks, riskItem } from '../../lib/catalog';
+import { severityLabel } from '../../lib/labels';
+
+const items = (await getRisks()).map(riskItem);
+const statuses = Object.entries(severityLabel).map(([value, v]) => ({ value, label: `${v.label} severity` }));
+---
+<Base title="Risks & incidents" description="Anonymised register of AI risks, incidents and lessons learned.">
+  <PageHead eyebrow="Risks" title="Risks & lessons learned" lede="An anonymised register of incidents and near-misses. No names, no blame: just what happened and what we changed." />
+  <SectionList items={items} noun="entry" placeholder="Filter the register…" statuses={statuses} />
+  <section class="container section">
+    <div class="panel">
+      <h2>Something happened?</h2>
+      <p>Report it within 24 hours following the <a href="/policies/incident-reporting/">incident reporting policy</a>. Closed incidents are added here, anonymised.</p>
+    </div>
+  </section>
+</Base>

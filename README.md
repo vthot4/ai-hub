@@ -8,7 +8,14 @@ Internal hub for an organization's AI adoption:
 | **Policies** | Versioned rules (acceptable use, data, review, incidents…) | `src/content/policies/*.md` |
 | **Agents** | Catalogue with *Overview / Install / Use / Maintain* tabs per agent | `src/content/agents/*.md` |
 | **Library** | Guides, templates and best practices | `src/content/library/*.md` |
+| **Flows** | Step-by-step processes and reusable automation flows, with Mermaid diagrams | `src/content/flows/*.md` |
+| **Start here** | First-week onboarding path per role | `src/content/onboarding/*.md` |
 | **Challenges** | Board to request tools/agents/features, vote and comment | SQLite (`DATABASE_PATH`) |
+| **Training** | Courses, workshops and paths with upcoming sessions (server-rendered, so dates are always current) | `src/content/training/*.md` |
+| **FAQ** | "Can I use AI for…?" decision guide + questions | `src/content/decision-tree.json`, `src/content/faq/*.md` |
+| **News** | Changelog of the hub, newest first | `src/content/news/*.md` |
+| **Risks** | Anonymised incident and lessons-learned register | `src/content/risks/*.md` |
+| **Metrics** | Adoption dashboard: active users, visits per section, challenge health | SQLite (`page_views`) |
 | **Admin** | Change challenge status, moderate comments | `/admin/` (admin role only) |
 
 > The Markdown content shipped in this repository is **sample content**. Replace it with your organization's real tools, policies and agents.
@@ -32,7 +39,10 @@ Each entry is a Markdown file with front-matter validated by zod (`src/content.c
 
 - **Tool**: `status` is `approved | restricted | prohibited`; list `allowedUses` and `forbiddenData`.
 - **Agent**: write four `##` sections named **Overview**, **Install**, **Use**, **Maintain**. They become tabs (a plain page without JavaScript).
-- Internal links are plain paths, e.g. `/policies/human-review/`.
+- **Flow**: `kind: process | automation`. Draw diagrams with a fenced ```` ```mermaid ```` block; they are rendered in the browser (and follow the light/dark theme). Automation flows also list `stack`, `inputs` and `outputs`.
+- **Decision guide**: edit `src/content/decision-tree.json`. Each node is either a question with `options` (`next` = node id) or a `result` (`yes | conditions | no`). Tests check that every `next` exists, there are no cycles and no unreachable nodes.
+- **Training**: `sessions` is a list of `YYYY-MM-DD` dates; past ones are struck through and only upcoming ones appear on `/training/`.
+- Internal links are plain paths, e.g. `/policies/human-review/`; `npm test` fails if one points to a page that does not exist (including `/faq/#anchor`).
 
 Open a pull request to change content; CI runs `check`, `test` and `build`.
 
@@ -54,6 +64,10 @@ Security notes:
 - Input is validated with zod; the UI renders text escaped; submissions are rate-limited per user **in memory**, so run a single instance (SQLite is single-writer anyway).
 - Terminate TLS at the proxy.
 
+## Usage metrics and privacy
+
+Each page load sends a beacon to `/api/track/` (only for authenticated users) that increments a counter per day, section and user. The user is stored as a salted SHA-256 hash (salt generated once in the database), never as an email, so the dashboard can count distinct users without identifying anyone. Only the section is recorded, not the full URL. Delete the `page_views` table to reset the figures.
+
 ## Deploy with Docker
 
 ```bash
@@ -69,7 +83,7 @@ The image listens on port `4321` and stores the database in the `hub-data` volum
 src/content/        Markdown + front-matter (tools, policies, agents, library)
 src/content.config.ts   zod schemas
 src/pages/          routes; pages/api/* are the board's JSON API
-src/islands/        Preact: CatalogBrowser, Search, ChallengeBoard, AdminPanel
-src/lib/            db, migrations, repo (queries), auth, validation, rate limit
+src/islands/        Preact: CatalogBrowser, Search, DecisionTree, ChallengeBoard, AdminPanel
+src/lib/            db, migrations, repo (challenges), metrics, auth, validation, rate limit
 tests/              Vitest
 ```

@@ -3,6 +3,7 @@
 <script>
   // Añade un botón "Copy" a cada bloque <pre> dentro de .prose
   document.querySelectorAll<HTMLPreElement>('.prose pre').forEach((pre) => {
+    if (pre.querySelector('code.language-mermaid')) return;
     const wrap = document.createElement('div');
     wrap.className = 'copy-wrap';
     pre.replaceWith(wrap);

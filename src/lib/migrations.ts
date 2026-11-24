@@ -27,4 +27,15 @@ export const migrations: string[] = [
   CREATE INDEX idx_comments_challenge ON comments(challenge_id);
   CREATE INDEX idx_challenges_status ON challenges(status);
   `,
+  /* 2 */ `
+  CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+  CREATE TABLE page_views (
+    day     TEXT NOT NULL,
+    section TEXT NOT NULL,
+    user    TEXT NOT NULL,
+    hits    INTEGER NOT NULL DEFAULT 0,
+    PRIMARY KEY (day, section, user)
+  );
+  CREATE INDEX idx_page_views_day ON page_views(day);
+  `,
 ];

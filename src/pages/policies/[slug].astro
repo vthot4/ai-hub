@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import CodeCopy from '../../components/CodeCopy.astro';
+import MermaidRender from '../../components/MermaidRender.astro';
 import { getPolicies } from '../../lib/catalog';
 import { fmtDate } from '../../lib/labels';
 
@@ -34,4 +35,5 @@ const { Content } = await render(entry);
     </div>
   </div>
   <CodeCopy />
+  <MermaidRender />
 </Base>

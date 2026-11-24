@@ -1,5 +1,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { agentStatusLabel, libraryTypeLabel, toolStatusLabel, type Variant } from './labels';
+import {
+  agentStatusLabel, flowKindLabel, formatLabel, levelLabel, libraryTypeLabel, riskStatusLabel,
+  severityLabel, toolStatusLabel, trainingKindLabel, type Variant,
+} from './labels';
 
 export interface CatalogItem {
   href: string;
@@ -76,3 +79,73 @@ export const getAgents = async () =>
   (await getCollection('agents')).sort((a, b) => a.data.name.localeCompare(b.data.name));
 export const getLibrary = async () =>
   (await getCollection('library')).sort((a, b) => +b.data.publishedOn - +a.data.publishedOn);
+
+export const flowItem = (e: CollectionEntry<'flows'>): CatalogItem => {
+  const k = flowKindLabel[e.data.kind];
+  return {
+    href: `/flows/${e.id}/`,
+    title: e.data.title,
+    summary: e.data.summary,
+    icon: e.data.icon,
+    badges: [{ label: k.label, variant: k.variant }],
+    footer: [e.data.category, `v${e.data.version}`],
+    category: e.data.category,
+    status: e.data.kind,
+    haystack: hay(e.data.title, e.data.summary, e.data.category, e.data.stack, e.data.tags),
+  };
+};
+
+export const onboardingItem = (e: CollectionEntry<'onboarding'>): CatalogItem => ({
+  href: `/start/${e.id}/`,
+  title: e.data.title,
+  summary: e.data.summary,
+  icon: e.data.icon,
+  badges: [{ label: e.data.estimatedTime, variant: 'accent' }],
+  footer: [e.data.role],
+  category: e.data.role,
+  haystack: hay(e.data.title, e.data.summary, e.data.role, e.data.tags),
+});
+
+export const riskItem = (e: CollectionEntry<'risks'>): CatalogItem => {
+  const sev = severityLabel[e.data.severity];
+  const st = riskStatusLabel[e.data.status];
+  return {
+    href: `/risks/${e.id}/`,
+    title: e.data.title,
+    summary: e.data.summary,
+    icon: e.data.icon,
+    badges: [{ label: sev.label, variant: sev.variant }, { label: st.label, variant: st.variant }],
+    footer: [e.data.category],
+    category: e.data.category,
+    status: e.data.severity,
+    haystack: hay(e.data.title, e.data.summary, e.data.category, e.data.tags),
+  };
+};
+
+export const trainingItem = (e: CollectionEntry<'training'>): CatalogItem => {
+  const lvl = levelLabel[e.data.level];
+  return {
+    href: `/training/${e.id}/`,
+    title: e.data.title,
+    summary: e.data.summary,
+    icon: e.data.icon,
+    badges: [{ label: lvl.label, variant: lvl.variant }],
+    footer: [trainingKindLabel[e.data.kind], formatLabel[e.data.format], e.data.duration],
+    category: trainingKindLabel[e.data.kind],
+    status: e.data.level,
+    haystack: hay(e.data.title, e.data.summary, e.data.audience, e.data.tags),
+  };
+};
+
+export const getFlows = async () =>
+  (await getCollection('flows')).sort((a, b) => a.data.title.localeCompare(b.data.title));
+export const getOnboarding = async () =>
+  (await getCollection('onboarding')).sort((a, b) => a.data.order - b.data.order);
+export const getFaq = async () =>
+  (await getCollection('faq')).sort((a, b) => a.data.order - b.data.order);
+export const getNews = async () =>
+  (await getCollection('news')).sort((a, b) => +b.data.date - +a.data.date);
+export const getRisks = async () =>
+  (await getCollection('risks')).sort((a, b) => +b.data.date - +a.data.date);
+export const getTraining = async () =>
+  (await getCollection('training')).sort((a, b) => a.data.title.localeCompare(b.data.title));

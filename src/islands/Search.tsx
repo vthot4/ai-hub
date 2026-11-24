@@ -1,12 +1,18 @@
 import Fuse from 'fuse.js';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import type { SearchDoc } from '../pages/search-index.json';
+import type { SearchDoc, SearchSection } from '../pages/search-index.json';
 
-const sectionVariant: Record<SearchDoc['section'], string> = {
+const sectionVariant: Record<SearchSection, string> = {
   Tool: 'info',
   Policy: 'warn',
   Agent: 'accent',
   Library: 'ok',
+  Flow: 'accent',
+  Start: 'ok',
+  Risk: 'bad',
+  Training: 'info',
+  FAQ: 'warn',
+  News: '',
 };
 
 export default function Search() {

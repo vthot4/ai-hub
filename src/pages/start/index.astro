@@ -1,0 +1,18 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getOnboarding, onboardingItem } from '../../lib/catalog';
+
+const items = (await getOnboarding()).map(onboardingItem);
+---
+<Base title="Start here" description="Getting started with AI at work, by role.">
+  <PageHead eyebrow="Start here" title="Get started in your role" lede="Pick the path that matches your job: which tools to use first, what to read and the five things to do in your first week." />
+  <SectionList items={items} noun="path" placeholder="Filter by role…" />
+  <section class="container section">
+    <div class="panel">
+      <h2>Not sure what is allowed?</h2>
+      <p>Use the <a href="/faq/">“Can I use AI for…?” guide</a> for a quick answer, or read the <a href="/policies/acceptable-use/">acceptable use policy</a>.</p>
+    </div>
+  </section>
+</Base>

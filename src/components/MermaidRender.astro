@@ -1,0 +1,54 @@
+---
+// Dibuja los bloques ```mermaid del contenido. mermaid se carga bajo demanda
+// (solo en páginas que tienen diagramas) y se redibuja al cambiar el tema.
+---
+<script>
+  const blocks = Array.from(document.querySelectorAll<HTMLElement>('pre > code.language-mermaid'));
+  if (blocks.length) {
+    const targets = blocks.map((code) => {
+      const el = document.createElement('div');
+      el.className = 'mermaid-block';
+      el.dataset.src = code.textContent ?? '';
+      el.setAttribute('role', 'img');
+      code.parentElement!.replaceWith(el);
+      return el;
+    });
+
+    const css = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+    import('mermaid').then(({ default: mermaid }) => {
+      let run = 0;
+      async function draw() {
+        const id = ++run;
+        mermaid.initialize({
+          startOnLoad: false,
+          securityLevel: 'strict',
+          theme: 'base',
+          fontFamily: css('--sans'),
+          themeVariables: {
+            background: 'transparent',
+            primaryColor: css('--surface-2'),
+            primaryTextColor: css('--fg'),
+            primaryBorderColor: css('--accent'),
+            lineColor: css('--muted'),
+            secondaryColor: css('--accent-soft'),
+            tertiaryColor: css('--surface'),
+            noteBkgColor: css('--warn-soft'),
+            noteTextColor: css('--fg'),
+            edgeLabelBackground: css('--surface'),
+          },
+        });
+        for (const [i, el] of targets.entries()) {
+          try {
+            const { svg } = await mermaid.render(`mmd-${id}-${i}`, el.dataset.src!);
+            if (id === run) el.innerHTML = svg;
+          } catch {
+            el.textContent = 'Diagram could not be rendered.';
+          }
+        }
+      }
+      draw();
+      new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    });
+  }
+</script>

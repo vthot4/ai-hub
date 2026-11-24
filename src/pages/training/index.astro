@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import SectionList from '../../components/SectionList.astro';
+import { getTraining, trainingItem } from '../../lib/catalog';
+import { levelLabel, formatLabel, fmtDate } from '../../lib/labels';
+
+// SSR: "próximas sesiones" depende de la fecha actual, no de la del build.
+export const prerender = false;
+
+const entries = await getTraining();
+const items = entries.map(trainingItem);
+const statuses = Object.entries(levelLabel).map(([value, v]) => ({ value, label: v.label }));
+const today = new Date();
+today.setUTCHours(0, 0, 0, 0);
+const upcoming = entries
+  .flatMap((e) => e.data.sessions.filter((d) => +d >= +today).map((date) => ({ e, date })))
+  .sort((a, b) => +a.date - +b.date)
+  .slice(0, 6);
+---
+<Base title="Training" description="Courses, workshops and learning paths about AI.">
+  <PageHead eyebrow="Training" title="Learn to work with AI" lede="Courses, workshops and learning paths for every level, with the dates of upcoming sessions." />
+
+  <section class="container" style="margin-bottom:2.5rem">
+    <div class="section-head"><h2>Upcoming sessions</h2></div>
+    {upcoming.length === 0 ? <p class="empty">No sessions scheduled. Most courses are available on demand below.</p> : (
+      <div class="grid">
+        {upcoming.map(({ e, date }, i) => (
+          <a class="card" href={`/training/${e.id}/`}>
+            <div class="card-top"><span class="card-icon" aria-hidden="true">{e.data.icon}</span><span class={`badge ${i === 0 ? 'accent' : ''}`}>{fmtDate(date)}</span></div>
+            <h3>{e.data.title}</h3>
+            <div class="card-foot"><span class="tag">{formatLabel[e.data.format]} · {e.data.duration}</span></div>
+          </a>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <SectionList items={items} noun="course" placeholder="Filter training…" statuses={statuses} />
+</Base>

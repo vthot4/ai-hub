@@ -4,6 +4,7 @@ import ThemeToggle from './ThemeToggle.astro';
 interface Props { currentPath: string }
 const { currentPath } = Astro.props;
 const active = (href: string) => currentPath === href || currentPath.startsWith(href);
+const moreActive = site.more.some((i) => active(i.href));
 ---
 <header class="site-header">
   <div class="container header-row">
@@ -15,6 +16,14 @@ const active = (href: string) => currentPath === href || currentPath.startsWith(
       {site.nav.map((i) => (
         <a href={i.href} aria-current={active(i.href) ? 'page' : undefined}>{i.label}</a>
       ))}
+      <details class="more" data-active={moreActive}>
+        <summary>More</summary>
+        <div class="more-menu">
+          {site.more.map((i) => (
+            <a href={i.href} aria-current={active(i.href) ? 'page' : undefined}>{i.label}</a>
+          ))}
+        </div>
+      </details>
     </nav>
     <div class="header-tools">
       <ThemeToggle />
@@ -31,5 +40,13 @@ const active = (href: string) => currentPath === href || currentPath.startsWith(
     const open = nav?.dataset.open === 'true';
     nav?.setAttribute('data-open', String(!open));
     btn.setAttribute('aria-expanded', String(!open));
+  });
+  // Cierra el menú "More" al hacer clic fuera o pulsar Escape
+  const more = document.querySelector<HTMLDetailsElement>('.more');
+  document.addEventListener('click', (e) => {
+    if (more?.open && !more.contains(e.target as Node)) more.open = false;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && more?.open) more.open = false;
   });
 </script>

@@ -1,0 +1,36 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import DecisionTree from '../../islands/DecisionTree';
+import { getFaq } from '../../lib/catalog';
+
+const nodes = (await getCollection('decision')).map((e) => e.data);
+const faq = await getFaq();
+const rendered = await Promise.all(faq.map(async (e) => ({ e, Content: (await render(e)).Content })));
+const categories = [...new Set(faq.map((e) => e.data.category))];
+---
+<Base title="FAQ" description="Can I use AI for…? Quick answers.">
+  <PageHead eyebrow="FAQ" title="Can I use AI for…?" lede="Answer a few questions and get a quick verdict based on our policies, then browse the most common questions." />
+  <section class="container"><DecisionTree client:load nodes={nodes} /></section>
+
+  <section class="container section" style="max-width:820px;margin-inline:auto">
+    <div class="section-head"><h2>Frequently asked questions</h2></div>
+    {categories.map((c) => (
+      <div class="faq-group">
+        <h3>{c}</h3>
+        {rendered.filter((r) => r.e.data.category === c).map(({ e, Content }) => (
+          <details class="qa" id={e.id}>
+            <summary>{e.data.question}</summary>
+            <div class="prose"><Content /></div>
+          </details>
+        ))}
+      </div>
+    ))}
+  </section>
+  <script>
+    // Abre la pregunta enlazada por hash (/faq/#slug)
+    const el = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    if (el instanceof HTMLDetailsElement) el.open = true;
+  </script>
+</Base>

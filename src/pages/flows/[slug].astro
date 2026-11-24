@@ -1,0 +1,51 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import CodeCopy from '../../components/CodeCopy.astro';
+import MermaidRender from '../../components/MermaidRender.astro';
+import { getFlows } from '../../lib/catalog';
+import { flowKindLabel, fmtDate } from '../../lib/labels';
+
+export async function getStaticPaths() {
+  return (await getFlows()).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+const d = entry.data;
+const kind = flowKindLabel[d.kind];
+const { Content } = await render(entry);
+---
+<Base title={d.title} description={d.summary}>
+  <div class="container" style="padding-top:2.5rem">
+    <p class="crumbs"><a href="/flows/">Flows</a> / {d.title}</p>
+    <div class="detail">
+      <div>
+        <p class="eyebrow">{d.category}</p>
+        <h1 style="font-size:clamp(2rem,4vw,2.7rem)"><span aria-hidden="true">{d.icon}</span> {d.title}</h1>
+        <p class="muted" style="margin:.8rem 0 1.2rem;font-size:1.08rem">{d.summary}</p>
+        <div style="margin-bottom:2rem"><span class={`badge ${kind.variant}`}>{kind.label}</span></div>
+        {(d.inputs.length > 0 || d.outputs.length > 0) && (
+          <div class="two-col" style="margin-bottom:2rem">
+            {d.inputs.length > 0 && <div class="panel"><h2>Inputs</h2><ul class="list-check">{d.inputs.map((i) => <li>{i}</li>)}</ul></div>}
+            {d.outputs.length > 0 && <div class="panel"><h2>Outputs</h2><ul class="list-check">{d.outputs.map((i) => <li>{i}</li>)}</ul></div>}
+          </div>
+        )}
+        <div class="prose"><Content /></div>
+      </div>
+      <aside class="aside">
+        <div class="panel"><h2>Details</h2>
+          <dl class="kv">
+            <dt>Type</dt><dd>{kind.label}</dd>
+            <dt>Version</dt><dd class="mono">{d.version}</dd>
+            <dt>Owner</dt><dd>{d.owner}</dd>
+            <dt>Updated</dt><dd>{fmtDate(d.updatedOn)}</dd>
+          </dl>
+        </div>
+        {d.stack.length > 0 && (
+          <div class="panel"><h2>Stack</h2><div class="chips">{d.stack.map((t) => <span class="badge plain">{t}</span>)}</div></div>
+        )}
+      </aside>
+    </div>
+  </div>
+  <CodeCopy />
+  <MermaidRender />
+</Base>
